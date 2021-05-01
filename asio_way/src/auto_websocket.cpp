@@ -8,10 +8,3 @@
 //
 
 #include "auto_websocket.hpp"
-
-#include <iostream>
-
-int
-main()
-{
-}

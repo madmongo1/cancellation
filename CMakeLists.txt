@@ -6,15 +6,25 @@ project(cancellation)
 # Dependencies
 #
 
-include (FetchContent)
-FetchContent_Declare(asio_src
-        URL https://github.com/chriskohlhoff/asio/archive/refs/tags/asio-1-18-1.tar.gz)
-if (NOT "${asio_src}_POPULATED")
-    FetchContent_Populate(asio_src)
+include(cmake/RequireBoost.cmake)
+set(my_prefix_path "${PROJECT_BINARY_DIR}/_deps")
+list(APPEND CMAKE_PREFIX_PATH "${my_prefix_path}")
+set(my_boost_components COMPONENTS system thread)
+if (my_boost_components)
+    set(my_boost_components_cmd COMPONENTS ${my_boost_components})
 endif()
-message(STATUS "[asio] asio_src_SOURCE_DIR: ${asio_src_SOURCE_DIR}")
-add_library(asio INTERFACE)
-target_include_directories(asio INTERFACE "${asio_src_SOURCE_DIR}/asio/include")
+foreach(my_component IN LISTS my_boost_components)
+    list(APPEND my_boost_libs "Boost::${my_component}")
+endforeach()
+RequireBoost(PREFIX "${PROJECT_BINARY_DIR}/_deps" VERSION 1.76.0 ${my_boost_components_cmd})
+find_package(Boost COMPONENTS ${my_boost_components_cmd} REQUIRED CONFIG)
+message(STATUS "[boost] Version ${Boost_VERSION}")
+message(STATUS "[boost] Include ${Boost_INCLUDE_DIRS}")
+message(STATUS "[boost] Libraries ${Boost_LIBRARIES}")
+
+#
+# Projects
+#
 
 foreach(my_project asio_way)
     add_subdirectory("${my_project}")
